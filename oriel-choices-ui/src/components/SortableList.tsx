@@ -2,33 +2,35 @@ import { useCallback, useEffect, useState } from "react";
 import update from 'immutability-helper';
 import { DraggableCard } from "./DraggableCard";
 import { getOptions } from "../lib/rankingOptions";
+import { DeaneryModel } from "../models/deanery";
 
 const style = {
 }
 
-export interface Item {
-    id: number
-    name: string
-    ratio: number
-}
-
 export interface ContainerState {
-    cards: Item[]
+    cards: DeaneryModel[]
 }
 
-export default function SortableList() {
-    const [cards, setCards] = useState([]);
+type SortableListProps = {
+    ranking: DeaneryModel[]
+    setRanking: React.Dispatch<React.SetStateAction<DeaneryModel[]>>
+}
 
+export default function SortableList(props: SortableListProps) {
     useEffect(() => {
-        getOptions().then(setCards);
+        getOptions().then((options: DeaneryModel[]|null) => {
+            if (options) {
+                props.setRanking(options);
+            }
+        })
     }, []);
 
     const moveCard = useCallback((dragIndex: number, hoverIndex: number) => {
-        setCards((prevCards: Item[]) =>
+        props.setRanking((prevCards: DeaneryModel[]) =>
             update(prevCards, {
                 $splice: [
                     [dragIndex, 1],
-                    [hoverIndex, 0, prevCards[dragIndex] as Item],
+                    [hoverIndex, 0, prevCards[dragIndex] as DeaneryModel],
                 ],
             }),
         )
@@ -52,7 +54,7 @@ export default function SortableList() {
 
     return (
         <>
-            <div style={style}>{cards.map((card, i) => renderCard(card, i))}</div>
+            <div style={style}>{props.ranking.map((card, i) => renderCard(card, i))}</div>
         </>
     )
 }
