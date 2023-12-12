@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import update from 'immutability-helper';
 import { DraggableCard } from "./DraggableCard";
 import { getOptions } from "../lib/rankingOptions";
@@ -42,6 +42,7 @@ export default function SortableList(props: SortableListProps) {
                 <DraggableCard
                     key={card.id}
                     index={index}
+                    maxIndex={props.ranking.length-1}
                     id={card.id}
                     text={card.name}
                     ratio={card.ratio}

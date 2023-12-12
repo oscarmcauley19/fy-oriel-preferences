@@ -34,8 +34,6 @@ def all_runs(probs, places, total_applicants, num_simulations, user_choices):
   num_times_won = {}
   pos_and_place = []
   for i in range(num_simulations):
-    if i % 20 == 0:
-      print(i)
     slots_left = list(places)
     assignments = [-1 for _ in range(total_applicants)]
     current_index_per_person = [0 for _ in range(total_applicants)]

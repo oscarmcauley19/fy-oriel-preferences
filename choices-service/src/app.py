@@ -24,7 +24,7 @@ def options():
 def simulate():
     user_ranking = request.json['data']
     print(user_ranking)
-    places = perform_simulations(user_ranking, 20)
+    places = perform_simulations(user_ranking, 100)
     return places
 
 if __name__ == '__main__':

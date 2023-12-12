@@ -5,7 +5,8 @@ import { useDrag, useDrop } from 'react-dnd'
 import styles from "../styles/DraggableCard.module.css";
 import chroma from 'chroma-js';
 import { ItemTypes } from '../lib/ItemTypes'
-import { Card, Typography } from '@mui/material'
+import { Card, IconButton, Tooltip, Typography } from '@mui/material'
+import { ArrowDownward, ArrowUpward } from '@mui/icons-material';
 
 const style = {
   border: '1px dashed gray',
@@ -21,6 +22,7 @@ export interface CardProps {
   text: string
   ratio: number
   index: number
+  maxIndex: number
   moveCard: (dragIndex: number, hoverIndex: number) => void
 }
 
@@ -30,7 +32,7 @@ interface DragItem {
   type: string
 }
 
-export const DraggableCard: FC<CardProps> = ({ id, text, ratio, index, moveCard }) => {
+export const DraggableCard: FC<CardProps> = ({ id, text, ratio, index, maxIndex, moveCard }) => {
   const ref = useRef<HTMLDivElement>(null)
   const [{ handlerId }, drop] = useDrop<
     DragItem,
@@ -106,13 +108,29 @@ export const DraggableCard: FC<CardProps> = ({ id, text, ratio, index, moveCard 
   const opacity = isDragging ? 0 : 1
   drag(drop(ref))
   return (
-    <div ref={ref} style={{ ...style, opacity }} data-handler-id={handlerId}>
-        <div className={styles.cardContent}>
-            <Typography className={styles.name}>{text}</Typography>
-            <div className={styles.ratio}>
-                <Typography color={scale(ratio).toString()}>{ratio}</Typography>
+    <Card sx={{ opacity: opacity, padding: "10px", marginBottom: "15px", cursor: isDragging ? "grab" : "pointer" }}>
+        <div ref={ref} data-handler-id={handlerId}>
+            <div className={styles.cardContent}>
+                <Typography textAlign={"left"} className={styles.name}>{text}</Typography>
+                <div className={styles.actionArea}>
+                    <div className={styles.ratio}>
+                        <Tooltip title={`For every place available in ${text}, ${ratio} people put it as their first choice.`}>
+                            <Typography color={scale(ratio).toString()}>{ratio}</Typography>
+                        </Tooltip>
+                    </div>
+                    <Tooltip title="Send to the top">
+                        <IconButton onClick={() => moveCard(index, 0)}>
+                            <ArrowUpward />
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Send to the bottom">
+                        <IconButton onClick={() => moveCard(index, maxIndex)}>
+                            <ArrowDownward />
+                        </IconButton>
+                    </Tooltip>
+                </div>
             </div>
         </div>
-    </div>
+    </Card>
   )
 }
