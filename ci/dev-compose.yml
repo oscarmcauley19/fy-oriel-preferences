@@ -1,0 +1,88 @@
+version: '1'
+services:
+  ui:
+    container_name: choices-ui
+    restart: always
+    build:
+      context: ../oriel-choices-ui
+      dockerfile: dev.dockerfile
+      args:
+         - DOCKERHUB=${DOCKERHUB}
+    ports:
+      - 3000:3000
+    volumes:
+      - ../oriel-choices-ui/src:/app/src
+    environment:
+      - NODE_ENV=development
+    networks:
+      - choices_network
+
+  api:
+    container_name: choices-api
+    restart: always
+    build:
+      context: ../choices-service 
+      dockerfile: dev.dockerfile
+      args:
+         - DOCKERHUB=${DOCKERHUB}
+    ports:
+      - 5000:5000
+    volumes:
+      - ../choices-service/src:/app
+    environment:
+      - NODE_ENV=development
+    networks:
+      - choices_network
+
+  pgadmin:
+    container_name: pgadmin
+    image: ${DOCKERHUB}/dpage/pgadmin4:latest
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: /run/secrets/pgadmin_password
+      PGADMIN_LISTEN_ADDRESS: 0.0.0.0
+    ports:
+      - "5050:80"
+    secrets:
+      - pgadmin_password
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    networks:
+        - choices_network
+    depends_on:
+      - db
+
+
+  db:
+    container_name: postgres
+    image: ${DOCKERHUB}/postgres:latest
+    restart: always
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      POSTGRES_USER: choices
+      POSTGRES_DB: choices
+    ports:
+      - "5432:5432"
+    volumes:
+      - ../db/initdb/:/docker-entrypoint-initdb.d/
+      - choices-db:/var/lib/postgresql/data
+    secrets:
+      - postgres_password
+    networks:
+        - choices_network
+
+secrets:
+  pgadmin_password:
+    file: pgadmin_password.txt
+  postgres_password:
+    file: postgres_password.txt
+
+
+volumes:
+  pgadmin:
+  choices-db:
+
+
+networks:
+  choices_network:
