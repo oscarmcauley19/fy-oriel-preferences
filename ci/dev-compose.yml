@@ -9,9 +9,10 @@ services:
       args:
          - DOCKERHUB=${DOCKERHUB}
     ports:
-      - 3000:3000
+      - 5173:5173
     volumes:
       - ../oriel-choices-ui/src:/app/src
+      - ../oriel-choices-ui/vite.config.ts:/app/vite.config.ts
     environment:
       - NODE_ENV=development
     networks:
@@ -21,14 +22,14 @@ services:
     container_name: choices-api
     restart: always
     build:
-      context: ../choices-service 
+      context: ../simulation-service/results-service 
       dockerfile: dev.dockerfile
       args:
          - DOCKERHUB=${DOCKERHUB}
     ports:
       - 5000:5000
     volumes:
-      - ../choices-service/src:/app
+      - ../simulation-service/results-service/src:/app
     environment:
       - NODE_ENV=development
     networks:
@@ -40,7 +41,7 @@ services:
     restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: /run/secrets/pgadmin_password
+      PGADMIN_DEFAULT_PASSWORD: password
       PGADMIN_LISTEN_ADDRESS: 0.0.0.0
     ports:
       - "5050:80"
